@@ -14,9 +14,59 @@ context.fillRect(0, 0, canvas.width, canvas.height);
 
 const gravity = 0.2;
 
-class Sprite {
-    constructor({ position, velocity, offset }) {
+
+class backgroundSprite {
+    constructor({ position, imageSrc, scale = 1, framesmax = 1, offset = { x: 0, y: 0 } }) {
         this.position = position;
+        this.width = 50
+        this.height = 100;
+        this.image = new Image();
+        this.image.src = imageSrc;
+        this.scale = scale
+        this.framesmax = framesmax
+        this.framesCurrent = 0
+        this.frameselapsed = 0
+        this.frameshold = 10
+        this.offset = offset
+
+    }
+
+    draw() {
+        context.drawImage(
+            this.image,
+            this.framesCurrent * (this.image.width / this.framesmax),
+            0,
+            this.image.width / this.framesmax,
+            this.image.height,
+            this.position.x - this.offset.x,
+            this.position.y - this.offset.y,
+            (this.image.width / this.framesmax) * this.scale,
+            this.image.height * this.scale)
+
+    }
+
+    update() {
+        this.draw()
+        this.frameselapsed++
+        if (this.frameselapsed % this.frameshold === 0) {
+            if (this.framesCurrent < this.framesmax - 1) {
+                this.framesCurrent++
+            } else {
+                this.framesCurrent = 0
+            }
+        }
+    }
+}
+
+class Sprite extends backgroundSprite {
+    constructor({ position, velocity, imageSrc, scale = 1, framesmax = 1, offset = { x: 0, y: 0 } }) {
+        super({
+            position,
+            imageSrc,
+            scale,
+            framesmax,
+            offset
+        });
         this.velocity = velocity;
         this.width = 50
         this.height = 100;
@@ -31,27 +81,45 @@ class Sprite {
         }
         this.isAttacking
         this.health = 100
+        this.framesCurrent = 0
+        this.frameselapsed = 0
+        this.frameshold = 10
+
+
     }
 
-    draw() {
-        context.fillStyle = "red";
-        context.fillRect(this.position.x, this.position.y, this.width, this.height);
-        if (player.isAttacking) {
-            context.fillStyle = "green";
-            context.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+
+    // draw() {
+    //     context.fillStyle = "red";
+    //     context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    //     if (player.isAttacking) {
+    //         context.fillStyle = "green";
+    //         context.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+    //     }
+    // }
+
+    // draw_enemy() {
+    //     context.fillStyle = "blue";
+    //     context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    //     if (enemy.isAttacking) {
+    //         context.fillStyle = "green";
+    //         context.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+    //     }
+    // }
+
+    animateframes() {
+        this.frameselapsed++
+        if (this.frameselapsed % this.frameshold === 0) {
+            if (this.framesCurrent < this.framesmax - 1) {
+                this.framesCurrent++
+            } else {
+                this.framesCurrent = 0
+            }
         }
+
     }
 
-    draw_enemy() {
-        context.fillStyle = "blue";
-        context.fillRect(this.position.x, this.position.y, this.width, this.height);
-        if (enemy.isAttacking) {
-            context.fillStyle = "green";
-            context.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-        }
-    }
-
-    update_player() {
+    update() {
         this.draw();
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x
         this.attackBox.position.y = this.position.y
@@ -64,6 +132,8 @@ class Sprite {
         } else {
             this.velocity.y += 0.2;
         }
+        this.animateframes();
+
     }
 
     attack() {
@@ -73,64 +143,26 @@ class Sprite {
             , 100);
     }
 
-    update_enemy() {
-        this.draw_enemy();
-        this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
-        this.attackBox.position.y = this.position.y
+    // update_enemy() {
+    //     this.draw();
+    //     this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
+    //     this.attackBox.position.y = this.position.y
 
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
+    //     this.position.x += this.velocity.x;
+    //     this.position.y += this.velocity.y;
 
-        if (this.position.y + this.height + this.velocity.y > canvas.height - 50) {
-            this.velocity.y = 0
-        } else {
-            this.velocity.y += 0.2;
-        }
-    }
+    //     if (this.position.y + this.height + this.velocity.y > canvas.height - 50) {
+    //         this.velocity.y = 0
+    //     } else {
+    //         this.velocity.y += 0.2;
+    //     }
+    // }
 
 
 }
 
 
-class backgroundSprite {
-    constructor({ position, imageSrc, scale = 1, framesmax = 1 }) {
-        this.position = position;
-        this.width = 50
-        this.height = 100;
-        this.image = new Image();
-        this.image.src = imageSrc;
-        this.scale = scale
-        this.framesmax = framesmax
-        this.framesCurrent = 0
-        this.frameselapsed = 0
-        this.frameshold = 10
-    }
 
-    draw() {
-        context.drawImage(
-            this.image,
-            this.framesCurrent * (this.image.width / this.framesmax),
-            0,
-            this.image.width / this.framesmax,
-            this.image.height,
-            this.position.x,
-            this.position.y,
-            this.image.width / this.framesmax * this.scale,
-            this.image.height * this.scale)
-    }
-
-    update() {
-        this.draw();
-        this.frameselapsed++
-        if (this.frameselapsed % this.frameshold === 0) {
-            if (this.framesCurrent < this.framesmax - 1) {
-                this.framesCurrent++
-            } else {
-                this.framesCurrent = 0
-            }
-        }
-    }
-}
 
 
 const background = new backgroundSprite({
@@ -138,7 +170,7 @@ const background = new backgroundSprite({
         x: 0,
         y: 0
     },
-    imageSrc: "./img/bg.png"
+    imageSrc: "./img/bg.png",
 });
 
 const beerus = new backgroundSprite({
@@ -164,6 +196,13 @@ const player = new Sprite({
     offset: {
         x: 0,
         y: 0
+    },
+    imageSrc: "./img/goki.png",
+    scale: 1.1,
+    framesmax: 6,
+    offset: {
+        x: 0,
+        y: 30
     }
 });
 
@@ -179,11 +218,17 @@ const enemy = new Sprite({
     offset: {
         x: -50,
         y: 0
+    },
+    imageSrc: "./img/g21.png",
+    scale: 1,
+    framesmax: 6,
+    offset: {
+        x: 0,
+        y: 40
     }
 });
 
 
-console.log(player);
 
 
 const keys = {
@@ -214,9 +259,9 @@ function animate() { // which function to loop over and over again
     context.fillStyle = "black";
     context.fillRect(0, 0, canvas.width, canvas.height);
     background.update();
-    beerus.update();
-    player.update_player();
-    enemy.update_enemy();
+    // beerus.update();
+    player.update();
+    enemy.update();
 
     player.velocity.x = 0;
     if (keys.a.pressed) {
