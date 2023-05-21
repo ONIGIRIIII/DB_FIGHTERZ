@@ -45,8 +45,7 @@ class backgroundSprite {
 
     }
 
-    update() {
-        this.draw()
+    animateframes() {
         this.frameselapsed++
         if (this.frameselapsed % this.frameshold === 0) {
             if (this.framesCurrent < this.framesmax - 1) {
@@ -55,11 +54,17 @@ class backgroundSprite {
                 this.framesCurrent = 0
             }
         }
+
+    }
+
+    update() {
+        this.draw()
+        this.animateframes();
     }
 }
 
 class Sprite extends backgroundSprite {
-    constructor({ position, velocity, imageSrc, scale = 1, framesmax = 1, offset = { x: 0, y: 0 } }) {
+    constructor({ position, velocity, imageSrc, scale = 1, framesmax = 1, offset = { x: 0, y: 0 }, sprites }) {
         super({
             position,
             imageSrc,
@@ -83,7 +88,13 @@ class Sprite extends backgroundSprite {
         this.health = 100
         this.framesCurrent = 0
         this.frameselapsed = 0
-        this.frameshold = 10
+        this.frameshold = 15
+        this.sprites = sprites
+
+        for (const sprite in sprites) {
+            sprites[sprite].image = new Image();
+            sprites[sprite].image.src = sprites[sprite].imageSrc
+        }
 
 
     }
@@ -107,17 +118,7 @@ class Sprite extends backgroundSprite {
     //     }
     // }
 
-    animateframes() {
-        this.frameselapsed++
-        if (this.frameselapsed % this.frameshold === 0) {
-            if (this.framesCurrent < this.framesmax - 1) {
-                this.framesCurrent++
-            } else {
-                this.framesCurrent = 0
-            }
-        }
 
-    }
 
     update() {
         this.draw();
@@ -143,6 +144,35 @@ class Sprite extends backgroundSprite {
             , 100);
     }
 
+    switchsprites(sprite) {
+        switch (sprite) {
+            case "idle":
+                if (this.image !== this.sprites.idle.image)
+                    this.image = this.sprites.idle.image
+                this.framesmax = this.sprites.idle.framesmax
+
+                break;
+            case "run":
+                if (this.image !== this.sprites.run.image)
+                    this.image = this.sprites.run.image
+                this.framesmax = this.sprites.run.framesmax
+
+                break;
+            case "jump":
+                if (this.image !== this.sprites.jump.image)
+                    this.image = this.sprites.jump.image
+                this.framesmax = this.sprites.jump.framesmax
+
+                break;
+            case "fall":
+                if (this.image !== this.sprites.fall.image)
+                    this.image = this.sprites.fall.image
+                this.framesmax = this.sprites.fall.framesmax
+
+        }
+
+    }
+
     // update_enemy() {
     //     this.draw();
     //     this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
@@ -160,8 +190,6 @@ class Sprite extends backgroundSprite {
 
 
 }
-
-
 
 
 
@@ -186,7 +214,7 @@ const beerus = new backgroundSprite({
 
 const player = new Sprite({
     position: {
-        x: 0,
+        x: 200,
         y: 0
     },
     velocity: {
@@ -197,18 +225,36 @@ const player = new Sprite({
         x: 0,
         y: 0
     },
-    imageSrc: "./img/goki.png",
-    scale: 1.1,
-    framesmax: 6,
+    imageSrc: "./img/f_idle.png",
+    scale: 1.2,
+    framesmax: 10,
     offset: {
         x: 0,
-        y: 30
+        y: 40
+    },
+    sprites: {
+        idle: {
+            imageSrc: "./img/f_idle.png",
+            framesmax: 10
+        },
+        run: {
+            imageSrc: "./img/f_run1.png",
+            framesmax: 8
+        },
+        jump: {
+            imageSrc: "./img/f_up.png",
+            framesmax: 7
+        },
+        fall: {
+            imageSrc: "./img/f_up.png",
+            framesmax: 7
+        }
     }
 });
 
 const enemy = new Sprite({
     position: {
-        x: canvas.width - 50,
+        x: canvas.width - 300,
         y: 0
     },
     velocity: {
@@ -219,12 +265,30 @@ const enemy = new Sprite({
         x: -50,
         y: 0
     },
-    imageSrc: "./img/g21.png",
+    imageSrc: "./img/cell_idle.png",
     scale: 1,
-    framesmax: 6,
+    framesmax: 4,
     offset: {
         x: 0,
-        y: 40
+        y: 70
+    },
+    sprites: {
+        idle: {
+            imageSrc: "./img/cell_idle.png",
+            framesmax: 4
+        },
+        run: {
+            imageSrc: "./img/cell_runn (1).png",
+            framesmax: 10
+        },
+        jump: {
+            imageSrc: "./img/cell_jumpy_up.png",
+            framesmax: 4
+        },
+        fall: {
+            imageSrc: "./img/cell_jumpy_fall.png",
+            framesmax: 4
+        }
     }
 });
 
@@ -264,17 +328,41 @@ function animate() { // which function to loop over and over again
     enemy.update();
 
     player.velocity.x = 0;
+    enemy.velocity.x = 0;
+
+
     if (keys.a.pressed) {
         player.velocity.x = -1;
+        player.switchsprites("run")
     } else if (keys.d.pressed) {
         player.velocity.x = 1;
+        player.switchsprites("run")
+    } else {
+        player.switchsprites("idle")
     }
 
-    enemy.velocity.x = 0;
+    if (player.velocity.y < 0) {
+        player.switchsprites("jump")
+    } else if (player.velocity.y > 0) {
+        player.switchsprites("fall")
+    }
+
+
+
     if (keys.ArrowLeft.pressed) {
         enemy.velocity.x = -1;
+        enemy.switchsprites("run")
     } else if (keys.ArrowRight.pressed) {
         enemy.velocity.x = 1;
+        enemy.switchsprites("run")
+    } else {
+        enemy.switchsprites("idle")
+    }
+
+    if (enemy.velocity.y < 0) {
+        enemy.switchsprites("jump")
+    } else if (enemy.velocity.y > 0) {
+        enemy.switchsprites("fall")
     }
 
     if (collision({ p: player, e: enemy })
