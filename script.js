@@ -138,6 +138,7 @@ class Sprite extends backgroundSprite {
     }
 
     attack() {
+        this.switchsprites("attack")
         this.isAttacking = true
         setTimeout(() =>
             this.isAttacking = false
@@ -145,29 +146,44 @@ class Sprite extends backgroundSprite {
     }
 
     switchsprites(sprite) {
+        if (this.image === this.sprites.attack.image && this.framesCurrent < this.sprites.attack.framesmax - 1) return
         switch (sprite) {
             case "idle":
-                if (this.image !== this.sprites.idle.image)
+                if (this.image !== this.sprites.idle.image) {
                     this.image = this.sprites.idle.image
-                this.framesmax = this.sprites.idle.framesmax
+                    this.framesmax = this.sprites.idle.framesmax
+                    this.framesCurrent = 0
+                }
 
                 break;
             case "run":
-                if (this.image !== this.sprites.run.image)
+                if (this.image !== this.sprites.run.image) {
                     this.image = this.sprites.run.image
-                this.framesmax = this.sprites.run.framesmax
-
+                    this.framesmax = this.sprites.run.framesmax
+                    this.framesCurrent = 0
+                }
                 break;
             case "jump":
-                if (this.image !== this.sprites.jump.image)
+                if (this.image !== this.sprites.jump.image) {
                     this.image = this.sprites.jump.image
-                this.framesmax = this.sprites.jump.framesmax
-
+                    this.framesmax = this.sprites.jump.framesmax
+                    this.framesCurrent = 0
+                }
                 break;
             case "fall":
-                if (this.image !== this.sprites.fall.image)
+                if (this.image !== this.sprites.fall.image) {
                     this.image = this.sprites.fall.image
-                this.framesmax = this.sprites.fall.framesmax
+                    this.framesmax = this.sprites.fall.framesmax
+                    this.framesCurrent = 0
+                }
+                break;
+            case "attack":
+                if (this.image !== this.sprites.attack.image) {
+                    this.image = this.sprites.attack.image
+                    this.framesmax = this.sprites.attack.framesmax
+                    this.framesCurrent = 0
+                }
+                break;
 
         }
 
@@ -242,12 +258,16 @@ const player = new Sprite({
             framesmax: 8
         },
         jump: {
-            imageSrc: "./img/f_up.png",
-            framesmax: 7
+            imageSrc: "./img/f_up1.png",
+            framesmax: 4
         },
         fall: {
-            imageSrc: "./img/f_up.png",
-            framesmax: 7
+            imageSrc: "./img/f_down.png",
+            framesmax: 3
+        },
+        attack: {
+            imageSrc: "./img/f_aa.png",
+            framesmax: 6
         }
     }
 });
@@ -288,6 +308,10 @@ const enemy = new Sprite({
         fall: {
             imageSrc: "./img/cell_jumpy_fall.png",
             framesmax: 4
+        },
+        attack: {
+            imageSrc: "./img/cell_a.png",
+            framesmax: 6
         }
     }
 });
