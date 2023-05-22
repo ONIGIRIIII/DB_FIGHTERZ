@@ -468,3 +468,38 @@ window.addEventListener("keyup", function (event) {
     }
 
 })
+
+
+const modal = document.querySelector(".modal");
+const overlay = document.querySelector(".overlay");
+const close_modal = document.querySelector(".close-modal");
+const open_modal = document.querySelectorAll(".show-modal");
+console.log(open);
+
+function hid() {
+    modal.classList.add("hidden");
+    overlay.classList.add("hidden");
+}
+
+for (let i = 0; i < open_modal.length; i++) {
+    open_modal[i].addEventListener("click", function () {
+        modal.classList.remove("hidden");
+        overlay.classList.remove("hidden");
+    })
+
+    // close_modal.addEventListener("click", function () {
+    //     modal.classList.add("hidden");
+    //     overlay.classList.add("hidden");
+    // })
+
+    close_modal.addEventListener("click", hid);
+    overlay.addEventListener("click", hid);
+}
+
+document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+        hid();
+    }
+})
+
+
