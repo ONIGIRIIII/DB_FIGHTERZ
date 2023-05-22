@@ -147,8 +147,14 @@ class Sprite extends backgroundSprite {
             , 100);
     }
 
+    takehit() {
+        this.switchsprites("hit");
+        this.health -= 5
+    }
+
     switchsprites(sprite) {
         if (this.image === this.sprites.attack.image && this.framesCurrent < this.sprites.attack.framesmax - 1) return
+        if (this.image === this.sprites.hit.image && this.framesCurrent < this.sprites.hit.framesmax - 1) return
         switch (sprite) {
             case "idle":
                 if (this.image !== this.sprites.idle.image) {
@@ -183,6 +189,13 @@ class Sprite extends backgroundSprite {
                 if (this.image !== this.sprites.attack.image) {
                     this.image = this.sprites.attack.image
                     this.framesmax = this.sprites.attack.framesmax
+                    this.framesCurrent = 0
+                }
+                break;
+            case "hit":
+                if (this.image !== this.sprites.hit.image) {
+                    this.image = this.sprites.hit.image
+                    this.framesmax = this.sprites.hit.framesmax
                     this.framesCurrent = 0
                 }
                 break;
@@ -270,6 +283,10 @@ const player = new Sprite({
         attack: {
             imageSrc: "./img/f_aa.png",
             framesmax: 6
+        },
+        hit: {
+            imageSrc: "./img/lmao_1.png",
+            framesmax: 4
         }
     },
     attackBox: {
@@ -323,6 +340,10 @@ const enemy = new Sprite({
         attack: {
             imageSrc: "./img/cell_a.png",
             framesmax: 6
+        },
+        hit: {
+            imageSrc: "./img/lmao.png",
+            framesmax: 4
         }
     }, attackBox: {
         offset: {
@@ -410,15 +431,17 @@ function animate() { // which function to loop over and over again
 
     if (collision({ p: player, e: enemy })
         && player.isAttacking) {
+        enemy.takehit();
         player.isAttacking = false;
-        enemy.health -= 5
+        // enemy.health -= 5
         document.querySelector("#enemyHealth").style.width = `${enemy.health}%`;
     }
 
     if (collision({ p: enemy, e: player })
         && enemy.isAttacking) {
+        player.takehit();
         enemy.isAttacking = false;
-        player.health -= 5
+        // player.health -= 5
         document.querySelector("#playerHealth").style.width = `${player.health}%`;
     }
 
