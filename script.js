@@ -90,6 +90,7 @@ class Sprite extends backgroundSprite {
         this.frameselapsed = 0
         this.frameshold = 15
         this.sprites = sprites
+        this.dead = false
 
         for (const sprite in sprites) {
             sprites[sprite].image = new Image();
@@ -122,6 +123,9 @@ class Sprite extends backgroundSprite {
 
     update() {
         this.draw();
+        if (!this.dead) {
+            this.animateframes();
+        }
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x
         this.attackBox.position.y = this.position.y
 
@@ -135,7 +139,7 @@ class Sprite extends backgroundSprite {
         } else {
             this.velocity.y += 0.2;
         }
-        this.animateframes();
+
 
     }
 
@@ -148,11 +152,21 @@ class Sprite extends backgroundSprite {
     }
 
     takehit() {
-        this.switchsprites("hit");
         this.health -= 5
+        if (this.health <= 0) {
+            this.switchsprites("die")
+        } else {
+            this.switchsprites("hit")
+        }
     }
 
     switchsprites(sprite) {
+        if (this.image === this.sprites.die.image) {
+            if (this.framesCurrent === this.sprites.die.framesmax - 1) {
+                this.dead = true
+            }
+            return
+        }
         if (this.image === this.sprites.attack.image && this.framesCurrent < this.sprites.attack.framesmax - 1) return
         if (this.image === this.sprites.hit.image && this.framesCurrent < this.sprites.hit.framesmax - 1) return
         switch (sprite) {
@@ -196,6 +210,13 @@ class Sprite extends backgroundSprite {
                 if (this.image !== this.sprites.hit.image) {
                     this.image = this.sprites.hit.image
                     this.framesmax = this.sprites.hit.framesmax
+                    this.framesCurrent = 0
+                }
+                break;
+            case "die":
+                if (this.image !== this.sprites.die.image) {
+                    this.image = this.sprites.die.image
+                    this.framesmax = this.sprites.die.framesmax
                     this.framesCurrent = 0
                 }
                 break;
@@ -261,7 +282,7 @@ const player = new Sprite({
     framesmax: 10,
     offset: {
         x: 100,
-        y: 40
+        y: 30
     },
     sprites: {
         idle: {
@@ -286,6 +307,10 @@ const player = new Sprite({
         },
         hit: {
             imageSrc: "./img/lmao_1.png",
+            framesmax: 4
+        },
+        die: {
+            imageSrc: "./img/ggs1.png",
             framesmax: 4
         }
     },
@@ -343,6 +368,10 @@ const enemy = new Sprite({
         },
         hit: {
             imageSrc: "./img/lmao.png",
+            framesmax: 4
+        },
+        die: {
+            imageSrc: "./img/dead.png",
             framesmax: 4
         }
     }, attackBox: {
@@ -458,31 +487,49 @@ function collision({ p, e }) {
 
 
 window.addEventListener("keydown", function (event) {
-    switch (event.key) {
-        case "d":
-            keys.d.pressed = true;
-            break;
-        case "a":
-            keys.a.pressed = true;
-            break;
-        case "w":
-            player.velocity.y = -10;
-            break;
-        case " ":
-            player.attack();
-            break;
-        case "ArrowRight":
-            keys.ArrowRight.pressed = true;
-            break;
-        case "ArrowLeft":
-            keys.ArrowLeft.pressed = true;
-            break;
-        case "ArrowUp":
-            enemy.velocity.y = -10;
-            break;
-        case "ArrowDown":
-            enemy.attack();
-            break;
+    if (!player.dead) {
+        switch (event.key) {
+            case "d":
+                keys.d.pressed = true;
+                break;
+            case "a":
+                keys.a.pressed = true;
+                break;
+            case "w":
+                player.velocity.y = -10;
+                break;
+            case " ":
+                player.attack();
+                break;
+            // case "ArrowRight":
+            //     keys.ArrowRight.pressed = true;
+            //     break;
+            // case "ArrowLeft":
+            //     keys.ArrowLeft.pressed = true;
+            //     break;
+            // case "ArrowUp":
+            //     enemy.velocity.y = -10;
+            //     break;
+            // case "ArrowDown":
+            //     enemy.attack();
+            //     break;
+        }
+    }
+    if (!enemy.dead) {
+        switch (event.key) {
+            case "ArrowRight":
+                keys.ArrowRight.pressed = true;
+                break;
+            case "ArrowLeft":
+                keys.ArrowLeft.pressed = true;
+                break;
+            case "ArrowUp":
+                enemy.velocity.y = -10;
+                break;
+            case "ArrowDown":
+                enemy.attack();
+                break;
+        }
     }
 })
 
@@ -545,3 +592,9 @@ document.addEventListener("keydown", function (e) {
 })
 
 
+function reload() {
+    const button = document.querySelector(".m");
+    button.addEventListener("click", () => {
+        window.location.reload();
+    })
+}

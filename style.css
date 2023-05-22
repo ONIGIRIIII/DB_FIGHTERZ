@@ -84,3 +84,14 @@ p {
 .c1 {
     font-family: "saiyan", sans-serif;
 }
+
+.m:hover {
+    transform: scale(1.3);
+    /* box-shadow: 0 0 5px red,
+        0 0 25px orange,
+        0 0 50px red; */
+}
+
+.m {
+    transition: all 0.4s;
+}
