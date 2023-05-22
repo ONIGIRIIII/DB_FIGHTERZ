@@ -64,7 +64,7 @@ class backgroundSprite {
 }
 
 class Sprite extends backgroundSprite {
-    constructor({ position, velocity, imageSrc, scale = 1, framesmax = 1, offset = { x: 0, y: 0 }, sprites }) {
+    constructor({ position, velocity, imageSrc, scale = 1, framesmax = 1, offset = { x: 0, y: 0 }, sprites, attackBox = { offset: {}, width: 100, height: 50 } }) {
         super({
             position,
             imageSrc,
@@ -80,9 +80,9 @@ class Sprite extends backgroundSprite {
                 x: this.position.x,
                 y: this.position.y
             },
-            offset,
-            width: 100,
-            height: 25
+            offset: attackBox.offset,
+            width: attackBox.width,
+            height: attackBox.height
         }
         this.isAttacking
         this.health = 100
@@ -124,6 +124,8 @@ class Sprite extends backgroundSprite {
         this.draw();
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x
         this.attackBox.position.y = this.position.y
+
+        // context.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
 
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
@@ -245,7 +247,7 @@ const player = new Sprite({
     scale: 1.2,
     framesmax: 10,
     offset: {
-        x: 0,
+        x: 100,
         y: 40
     },
     sprites: {
@@ -269,6 +271,15 @@ const player = new Sprite({
             imageSrc: "./img/f_aa.png",
             framesmax: 6
         }
+    },
+    attackBox: {
+        offset: {
+            x: 0,
+            y: 0
+        },
+        width: 100,
+        height: 50
+
     }
 });
 
@@ -313,6 +324,14 @@ const enemy = new Sprite({
             imageSrc: "./img/cell_a.png",
             framesmax: 6
         }
+    }, attackBox: {
+        offset: {
+            x: 0,
+            y: 0
+        },
+        width: 100,
+        height: 50
+
     }
 });
 
@@ -392,14 +411,14 @@ function animate() { // which function to loop over and over again
     if (collision({ p: player, e: enemy })
         && player.isAttacking) {
         player.isAttacking = false;
-        enemy.health -= 20
+        enemy.health -= 5
         document.querySelector("#enemyHealth").style.width = `${enemy.health}%`;
     }
 
     if (collision({ p: enemy, e: player })
         && enemy.isAttacking) {
         enemy.isAttacking = false;
-        player.health -= 20
+        player.health -= 5
         document.querySelector("#playerHealth").style.width = `${player.health}%`;
     }
 
